@@ -20,6 +20,8 @@ import (
 var (
 	idCtt = []string{}
 	output = "./output"
+	flagName = "./flagFile"
+	root = utils.GetCwd()
 )
 
 func main() {
@@ -35,10 +37,9 @@ func main() {
 	}
 
 	if date == "" {
-		date = utils.GetDateString(time.Now())
+		date = utils.GetDateString(time.Now().AddDate(0,0,-1))
 	}
 
-	root := utils.GetCwd()
 	if !path.IsAbs(filePath) {
 		filePath = filepath.Join(root, filePath)
 	}
@@ -99,6 +100,8 @@ func readDir(filePath string, date string) {
 			readList(filepath.Join(filePath, fileName))
 		}
 	}
+
+	writeFlag(date)
 }
 
 // 获取机器列表
@@ -116,7 +119,6 @@ func readList(name string) {
 		readFiles(filepath.Join(name, fileName))
 	}
 
-	fmt.Println(idCtt)
 	writeData(filepath.Join(output, oFileName), &idCtt)
 	idCtt = []string{}
 }
@@ -127,5 +129,16 @@ func writeData(path string, data *[]string) {
 	e := ioutil.WriteFile(path, []byte(rsData), 0777)
 	if e != nil {
 		fmt.Println("Write " + path + "successfully.")
+	}
+}
+
+// 处理数据后写入标记
+func writeFlag(date string) {
+	if date == "" {
+		date = utils.GetDateString(time.Now().AddDate(0,0,-1))
+	}
+	e := ioutil.WriteFile(filepath.Join(root, flagName), []byte(date), 0777)
+	if e == nil {
+		fmt.Println("Write flag successfully.")
 	}
 }
